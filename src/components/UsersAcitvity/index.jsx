@@ -8,7 +8,7 @@ export default function UsersActivity() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    const socket = io(`http://localhost:3000`);
+    const socket = io(`https://spotify-production-f726.up.railway.app`);
 
     const fetchUsers = async () => {
       const fetchedUsers = await axiosInstance.get('/api/users')

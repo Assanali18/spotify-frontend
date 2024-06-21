@@ -10,7 +10,6 @@ import {LikeButton} from "../UserButton";
 import {useAudioPlayer} from "../../contexts/AudioPlayerContex";
 
 const SongsList = ({ songsUrl, songs: initialSongs = [], editable = false }) => {
-    const socket = io(`${'http://localhost:3000'}`);
 
     const [songs, setSongs] = useState([]);
     const [playingIndex, setPlayingIndex] = useState(null);
@@ -21,77 +20,57 @@ const SongsList = ({ songsUrl, songs: initialSongs = [], editable = false }) => 
     const [showPlaylists, setShowPlaylists] = useState(false);
     const [selectedSong, setSelectedSong] = useState(null);
     const [showMenu, setShowMenu] = useState({});
-    const { playTrack, setIsPlaying } = useAudioPlayer();
+    const { setTrack, pauseTrack, isPlaying, setIsPlaying, audioRef, currentTime, handleTimeChange } = useAudioPlayer();
+    const socketRef = useRef(null);
 
+    useEffect(() => {
+        socketRef.current = io(`${'https://spotify-production-f726.up.railway.app'}`);
 
+        return () => {
+            socketRef.current.disconnect();
+        };
+    }, []);
     useEffect(() => {
         const fetchSongs = async () => {
             try {
                 const response = await axiosInstance.get(songsUrl);
                 setSongs(response.data);
-                initializeCurrentTimes(response.data);
-                audioRefs.current = response.data.map(() => React.createRef());
+
             } catch (error) {
                 console.error('Error fetching songs:', error);
             }
         };
-
         if (songsUrl) {
             fetchSongs();
         } else {
-            initializeCurrentTimes(initialSongs);
             setSongs(initialSongs);
-            audioRefs.current = initialSongs.map(() => React.createRef());
         }
     }, [songsUrl]);
 
-    const initializeCurrentTimes = (songsData) => {
-        const times = {};
-        songsData.forEach(song => {
-            times[song._id] = 0;
-        });
-        setCurrentTimes(times);
-    };
-
     const togglePlayPause = (index, song) => {
-        const audio = audioRefs.current[index].current;
-        if (audio) {
-            if (audio.paused) {
-                if (playingIndex !== null && playingIndex !== index) {
-                    audioRefs.current[playingIndex].current.pause();
-                }
-                audio.play();
-                setPlayingIndex(index);
-                socket.emit('updateTrack', { userId: localStorage.getItem('id'), track: song.title, artist: song.artistId.username });
-                playTrack(song);
+        if (isPlaying && playingIndex === index) {
+            pauseTrack();
+            setPlayingIndex(null);
+            socketRef.current.emit('updateTrack', { userId: localStorage.getItem('id'), track: null, artist: null });
+        } else {
+            if (playingIndex !== index) {
+                setTrack(song);
             } else {
-                audio.pause();
-                setIsPlaying(false);
-                setPlayingIndex(null);
-                socket.emit('updateTrack', { userId: localStorage.getItem('id'), track: null, artist: null });
+                audioRef.current.play();
             }
+            setIsPlaying(true);
+            setPlayingIndex(index);
+            socketRef.current.emit('updateTrack', { userId: localStorage.getItem('id'), track: song.title, artist: song.artistId.username });
         }
     };
+
 
     const handleAddToPlaylistClick = (song) => {
         setSelectedSong(song);
         setShowPlaylists(true);
     };
 
-    const handleTimeChange = (index, time) => {
-        const audio = audioRefs.current[index].current;
-        if (audio) {
-            audio.currentTime = time;
-            setCurrentTimes(prev => ({ ...prev, [songs[index]._id]: time }));
-        }
-    };
 
-    const handleTimeUpdate = (index) => {
-        const audio = audioRefs.current[index].current;
-        if (audio) {
-            setCurrentTimes(prev => ({ ...prev, [songs[index]._id]: audio.currentTime }));
-        }
-    };
 
     const handleDelete = async (songId) => {
         try {
@@ -116,7 +95,7 @@ const SongsList = ({ songsUrl, songs: initialSongs = [], editable = false }) => 
                 <div key={song._id} className="flex items-center bg-gray-800 text-white p-2 rounded-lg">
                     <button onClick={() => togglePlayPause(index, song)} className="bg-black p-2 rounded-full">
                         <IconContext.Provider value={{ color: "white", size: "2em" }}>
-                            {playingIndex === index ? <BiPause /> : <BiPlay />}
+                            {playingIndex === index && isPlaying ? <BiPause /> : <BiPlay />}
                         </IconContext.Provider>
                     </button>
                     <div className="flex flex-col w-full mb-2 px-4">
@@ -125,21 +104,7 @@ const SongsList = ({ songsUrl, songs: initialSongs = [], editable = false }) => 
                             <Link className="underline text-[12px] text-gray-400"
                                   to={`/user/${song.artistId._id}`}>{song.artistId.username}</Link>
                         </div>
-                        <input
-                            type="range"
-                            min="0"
-                            max={audioRefs.current[index]?.current?.duration || 0}
-                            value={currentTimes[song._id] || 0}
-                            onChange={(e) => handleTimeChange(index, Number(e.target.value))}
-                            className="w-full h-1 bg-gray-700 rounded-lg"
-                        />
                     </div>
-                    <audio
-                        ref={audioRefs.current[index]}
-                        src={song.songUrl}
-                        preload="metadata"
-                        onTimeUpdate={() => handleTimeUpdate(index)}
-                    ></audio>
                     <div className="w-20 h-20 overflow-hidden">
                         <img src={song.image} alt={song.title} className="h-full object-cover"/>
                     </div>
@@ -147,7 +112,6 @@ const SongsList = ({ songsUrl, songs: initialSongs = [], editable = false }) => 
                         <button onClick={() => toggleMenu(song._id)} className="p-2">
                             <BiDotsVerticalRounded size="1.5em"/>
                         </button>
-                        <LikeButton itemId={song._id} itemType="songs" initialLikes={song.likes.map(like => like.$oid)} />
                         {showMenu[song._id] && (
                             <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 text-black">
                                 <button onClick={() => handleAddToPlaylistClick(song)}
@@ -171,7 +135,7 @@ const SongsList = ({ songsUrl, songs: initialSongs = [], editable = false }) => 
                         )}
                     </div>
                     {showPlaylists && selectedSong && (
-                        <PlaylistSelector song={selectedSong} onClose={() => setShowPlaylists(false)}/>
+                        <PlaylistSelector  song={selectedSong} onClose={() => setShowPlaylists(false)}/>
                     )}
                 </div>
             ))}
