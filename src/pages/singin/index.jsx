@@ -1,11 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import {useAuth} from "../../contexts/AuthContext";
+import {Link} from "react-router-dom";
 
 export const Signin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { login } = useAuth();
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log(email, password);
+    await login(email, password);
   };
 
   return (
@@ -19,13 +29,14 @@ export const Signin = () => {
           />
           <h1 className="text-3xl font-bold mt-4">Sign In</h1>
         </div>
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-medium">Email</label>
             <input
               type="email"
               className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
               placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div>
@@ -35,6 +46,7 @@ export const Signin = () => {
                 type={showPassword ? "text" : "password"}
                 className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Enter your password"
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"

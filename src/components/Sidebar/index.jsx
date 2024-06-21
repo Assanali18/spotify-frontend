@@ -9,7 +9,7 @@ import UsersActivity from "../UsersAcitvity";
 const Sidebar = ({ showSidebar, setShowSidebar }) => {
   return (
     <div
-      className={`bg-black fixed top-0 w-64 h-full p-6 flex flex-col justify-between ${
+      className={`bg-black text-white hover:text-gray-100 transition-colors fixed top-0 w-64 h-full p-6 flex flex-col justify-between ${
         showSidebar ? "left-0" : "-left-full"
       } md:left-0 transition-all duration-300 z-50`}
     >
@@ -42,7 +42,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/search"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <HiMagnifyingGlass className="text-2xl" /> Search
@@ -50,7 +50,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li className="mb-8">
               <Link
-                to="#"
+                to="/library"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <BiLibrary className="text-2xl" /> Library
@@ -58,7 +58,7 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/upload/playlist"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <RiAddBoxLine className="text-2xl" /> Create a Playlist
@@ -66,7 +66,15 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
             </li>
             <li>
               <Link
-                to="#"
+                to="/upload"
+                className="flex items-center gap-4 hover:text-gray-100 transition-colors"
+              >
+                <RiAddBoxLine className="text-2xl" /> Create a Song
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/favorites"
                 className="flex items-center gap-4 hover:text-gray-100 transition-colors"
               >
                 <RiHeartFill className="text-2xl" /> Favorite Songs

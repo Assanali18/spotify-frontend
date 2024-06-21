@@ -1,8 +1,18 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import {useAuth} from "../../contexts/AuthContext";
 
 export const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const { register } = useAuth();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    register(email, username, password);
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -19,41 +29,37 @@ export const Signup = () => {
           />
           <h1 className="text-3xl font-bold mt-4">Sign Up</h1>
         </div>
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="block text-sm font-medium">Email</label>
             <input
               type="email"
               className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
               placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Password</label>
+            <label className="block text-sm font-medium">Username</label>
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
-                className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
-                placeholder="Create a password"
+                  type="text"
+                  className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                  placeholder="Create a password"
+                  onChange={(e) => setUsername(e.target.value)}
               />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium">
-              Confirm Password
+              Password
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 className="w-full p-3 mt-1 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Confirm your password"
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
