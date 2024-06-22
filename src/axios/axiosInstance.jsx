@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "https://spotify-frontend-b82pg1ytx-kbtu.vercel.app/",
+    baseURL: "https://spotify-production-f726.up.railway.app/",
 });
 
 axiosInstance.interceptors.request.use(
