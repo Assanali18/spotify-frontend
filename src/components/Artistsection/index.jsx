@@ -40,6 +40,7 @@ export const Artistsection = ({ title }) => {
                   key={index}
                   title={artist.name}
                   description={`Likes: ${artist.totalLikes}`}
+                  artistId={artist._id}
                   imageUrl={artist.imageUrl}
               />
           ))}
