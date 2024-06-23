@@ -16,6 +16,7 @@ export default function UsersActivity() {
       if(fetchedUsers){
         setUsers(fetchedUsers.data.map(user => ({ ...user, currentTrack: null })));
       }
+
     };
 
     socket.on('trackUpdated', (data) => {
@@ -25,6 +26,7 @@ export default function UsersActivity() {
     });
 
     fetchUsers();
+    console.log(users)
 
     return () => {
       socket.disconnect();

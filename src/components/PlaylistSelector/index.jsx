@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import axiosInstance from "../../axios/axiosInstance";
 import {Link} from "react-router-dom";
 import "./PlaylistSelector.css"
+import {useNavigate} from "react-router-dom";
 
 
 const PlaylistSelector = ({ song, onClose }) => {
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
     const userId = localStorage.getItem('id');
+    const navigate = useNavigate();
+
 
     useEffect(() => {
         const fetchPlaylists = async () => {
@@ -20,6 +23,7 @@ const PlaylistSelector = ({ song, onClose }) => {
                 });
 
                 setPlaylists(playlistsWithSongPresence);
+
             } catch (error) {
                 console.error('Error fetching playlists:', error);
             } finally {
@@ -55,24 +59,43 @@ const PlaylistSelector = ({ song, onClose }) => {
                         Loading...
                     </div>
                 ) : (
-                    <div className="mb-6 hide-scrollbar" style={{maxHeight: "60vh", overflowY: "auto"}}>
-                        {playlists.map(playlist => (
-                            <div key={playlist._id}
-                                 className="flex justify-between items-center py-4 border-b border-gray-700 last:border-b-0">
-                                <img src={playlist.coverUrl} alt={playlist.name} className="w-16 h-16 rounded"/>
-                                <Link to={`/playlist/${playlist._id}`} className="text-lg flex-1 mx-4">
-                                    {playlist.name}
-                                </Link>
+                    <>
+                        {playlists.length > 0 ? (
+                            <div className="mb-6 hide-scrollbar" style={{ maxHeight: "60vh", overflowY: "auto" }}>
+                                {playlists.map(playlist => (
+                                    <div key={playlist._id}
+                                         className="flex justify-between items-center py-4 border-b border-gray-700 last:border-b-0">
+                                        <img src={playlist.coverUrl} alt={playlist.name} className="w-16 h-16 rounded" />
+                                        <Link to={`/playlist/${playlist._id}`} className="text-lg flex-1 mx-4">
+                                            {playlist.name}
+                                        </Link>
+                                        <button
+                                            onClick={() => handleAddSongToPlaylist(playlist._id)}
+                                            className={`bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out ${playlist.isSongPresent ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={playlist.isSongPresent}
+                                        >
+                                            {playlist.isSongPresent ? 'Already Added' : 'Add'}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center text-lg">
+                                <p>No playlists found. Create your own playlist:</p>
                                 <button
-                                    onClick={() => handleAddSongToPlaylist(playlist._id)}
-                                    className={`bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out ${playlist.isSongPresent ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={playlist.isSongPresent}
+                                    onClick={() =>{
+                                        navigate('/upload/playlist');
+                                        onClose();
+                                    }
+
+                                }
+                                    className="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out"
                                 >
-                                    {playlist.isSongPresent ? 'Already Added' : 'Add'}
+                                    Create Playlist
                                 </button>
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
                 <button
                     onClick={onClose}
