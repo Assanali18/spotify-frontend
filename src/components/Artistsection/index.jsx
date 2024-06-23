@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArtistsCard } from "../ArtistsCard";
 import "./Artistsection.css";
+import axiosInstance from "../../axios/axiosInstance";
 
 export const Artistsection = ({ title }) => {
   const [artists, setArtists] = useState([]);
@@ -10,9 +11,8 @@ export const Artistsection = ({ title }) => {
 
     const fetchArtists = async () => {
       try {
-        const response = await fetch('/api/most-popular');
-        const data = await response.json();
-        setArtists(data);
+        const response = axiosInstance.get('/api/most-popular');
+        setArtists(response.data);
         console.log(artists)
       } catch (error) {
         console.error('Error fetching data:', error);
