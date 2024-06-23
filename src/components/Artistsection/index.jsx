@@ -10,9 +10,10 @@ export const Artistsection = ({ title }) => {
 
     const fetchArtists = async () => {
       try {
-        const response = await fetch('/api/most-liked-artists');
+        const response = await fetch('/api/most-popular');
         const data = await response.json();
         setArtists(data);
+        console.log(artists)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
