@@ -7,20 +7,20 @@ import axiosInstance from "../../axios/axiosInstance";
 export const Artistsection = ({ title }) => {
   const [artists, setArtists] = useState([]);
 
-  useEffect(() => {
-
-    const fetchArtists = async () => {
-      try {
-        const response = axiosInstance.get('/api/most-popular');
-        setArtists(response.data);
-        console.log(artists)
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchArtists();
-  }, []);
+  // useEffect(() => {
+  //
+  //   const fetchArtists = async () => {
+  //     try {
+  //       const response = axiosInstance.get('/api/users/most-popular');
+  //       setArtists(response.data);
+  //       console.log(artists)
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
+  //
+  //   fetchArtists();
+  // }, []);
 
   return (
       <div className="mb-8">
@@ -36,15 +36,15 @@ export const Artistsection = ({ title }) => {
           </Link>
         </div>
         <div className="horizontal-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-          {artists.map((artist, index) => (
-              <ArtistsCard
-                  key={index}
-                  title={artist.name}
-                  description={`Likes: ${artist.totalLikes}`}
-                  artistId={artist._id}
-                  imageUrl={artist.imageUrl}
-              />
-          ))}
+          {/*{artists.map((artist, index) => (*/}
+          {/*    <ArtistsCard*/}
+          {/*        key={index}*/}
+          {/*        title={artist.name}*/}
+          {/*        description={`Likes: ${artist.totalLikes}`}*/}
+          {/*        artistId={artist._id}*/}
+          {/*        imageUrl={artist.imageUrl}*/}
+          {/*    />*/}
+          {/*))}*/}
         </div>
       </div>
   );
